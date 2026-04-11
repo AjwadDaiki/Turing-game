@@ -13,7 +13,7 @@ interface Props {
   disabled?: boolean;
 }
 
-export default function EmojiInput({ prompt, onSubmit, onDraftChange, disabled }: Props) {
+export default function EmojiInput({ onSubmit, onDraftChange, disabled }: Props) {
   const [selected, setSelected] = useState('');
 
   function handleSelect(emoji: string) {
@@ -24,18 +24,22 @@ export default function EmojiInput({ prompt, onSubmit, onDraftChange, disabled }
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-lg text-center font-medium">{prompt}</p>
+      {/* Grille d'émojis style tampons circulaires */}
       <div className="grid grid-cols-5 gap-2">
-        {EMOJI_OPTIONS.map((emoji) => (
+        {EMOJI_OPTIONS.map(emoji => (
           <button
             key={emoji}
             onClick={() => handleSelect(emoji)}
             disabled={disabled}
-            className={`text-3xl py-2 rounded transition ${
-              selected === emoji
-                ? 'bg-white/20 ring-2 ring-white'
-                : 'hover:bg-white/10'
-            }`}
+            style={{
+              fontSize: '1.6rem',
+              padding: '6px',
+              background: selected === emoji ? 'rgba(26,22,18,0.1)' : 'transparent',
+              border: selected === emoji ? '2px solid rgba(26,22,18,0.4)' : '2px solid transparent',
+              cursor: disabled ? 'default' : 'pointer',
+              transition: 'all 80ms ease',
+              borderRadius: 2,
+            }}
           >
             {emoji}
           </button>
@@ -44,9 +48,9 @@ export default function EmojiInput({ prompt, onSubmit, onDraftChange, disabled }
       <button
         onClick={() => selected && onSubmit(selected)}
         disabled={disabled || !selected}
-        className="bg-white text-black font-bold py-3 rounded disabled:opacity-40"
+        className="btn-stamp w-full"
       >
-        Valider
+        VALIDER
       </button>
     </div>
   );

@@ -8,7 +8,7 @@ interface Props {
   disabled?: boolean;
 }
 
-export default function TextInput({ prompt, onSubmit, onDraftChange, disabled }: Props) {
+export default function TextInput({ onSubmit, onDraftChange, disabled }: Props) {
   const [value, setValue] = useState('');
 
   function handleChange(v: string) {
@@ -24,22 +24,19 @@ export default function TextInput({ prompt, onSubmit, onDraftChange, disabled }:
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <p className="text-lg text-center font-medium">{prompt}</p>
       <input
-        className="bg-gray-800 border border-gray-600 rounded px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-white"
+        className="field-line"
+        style={{ fontSize: '1.1rem', letterSpacing: '0.04em' }}
         value={value}
-        onChange={(e) => handleChange(e.target.value)}
+        onChange={e => handleChange(e.target.value)}
         disabled={disabled}
-        placeholder="Votre réponse..."
+        placeholder="_______________________________"
         maxLength={100}
         autoFocus
+        spellCheck={false}
       />
-      <button
-        type="submit"
-        disabled={disabled || !value.trim()}
-        className="bg-white text-black font-bold py-3 rounded disabled:opacity-40"
-      >
-        Valider
+      <button type="submit" disabled={disabled || !value.trim()} className="btn-stamp w-full">
+        VALIDER
       </button>
     </form>
   );

@@ -8,7 +8,7 @@ interface Props {
   disabled?: boolean;
 }
 
-export default function SliderInput({ prompt, onSubmit, onDraftChange, disabled }: Props) {
+export default function SliderInput({ onSubmit, onDraftChange, disabled }: Props) {
   const [value, setValue] = useState(50);
   const [submitted, setSubmitted] = useState(false);
 
@@ -24,30 +24,39 @@ export default function SliderInput({ prompt, onSubmit, onDraftChange, disabled 
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <p className="text-lg text-center font-medium">{prompt}</p>
-      <div className="flex flex-col items-center gap-3">
-        <span className="text-5xl font-bold">{value}</span>
-        <input
-          type="range"
-          min={0}
-          max={100}
-          value={value}
-          onChange={(e) => handleChange(Number(e.target.value))}
-          disabled={disabled || submitted}
-          className="w-full accent-white"
-        />
-        <div className="flex justify-between w-full text-gray-400 text-xs">
-          <span>0</span>
-          <span>100</span>
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col items-center gap-2">
+        <span
+          className="font-stamp"
+          style={{ fontSize: '3rem', color: 'var(--ink-black)', letterSpacing: '0.05em', lineHeight: 1 }}
+        >
+          {value}
+        </span>
+        <div
+          className="font-stamp"
+          style={{ fontSize: '0.55rem', color: 'rgba(26,22,18,0.4)', letterSpacing: '0.1em' }}
+        >
+          VALEUR ESTIMÉE / 100
         </div>
       </div>
-      <button
-        onClick={handleSubmit}
-        disabled={disabled || submitted}
-        className="bg-white text-black font-bold py-3 rounded disabled:opacity-40"
-      >
-        Valider
+      {/* Rail style métal brossé */}
+      <div className="flex flex-col gap-1">
+        <input
+          type="range" min={0} max={100} value={value}
+          onChange={e => handleChange(Number(e.target.value))}
+          disabled={disabled || submitted}
+          className="w-full"
+          style={{ accentColor: 'var(--ink-black)' }}
+        />
+        <div
+          className="font-stamp flex justify-between"
+          style={{ fontSize: '0.55rem', color: 'rgba(26,22,18,0.4)', letterSpacing: '0.08em' }}
+        >
+          <span>0</span><span>50</span><span>100</span>
+        </div>
+      </div>
+      <button onClick={handleSubmit} disabled={disabled || submitted} className="btn-stamp w-full">
+        VALIDER
       </button>
     </div>
   );

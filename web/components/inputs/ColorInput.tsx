@@ -13,7 +13,7 @@ interface Props {
   disabled?: boolean;
 }
 
-export default function ColorInput({ prompt, onSubmit, onDraftChange, disabled }: Props) {
+export default function ColorInput({ onSubmit, onDraftChange, disabled }: Props) {
   const [selected, setSelected] = useState('');
 
   function handleSelect(c: string) {
@@ -24,39 +24,57 @@ export default function ColorInput({ prompt, onSubmit, onDraftChange, disabled }
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-lg text-center font-medium">{prompt}</p>
-      <div className="grid grid-cols-6 gap-2">
-        {PRESET_COLORS.map((c) => (
+      {/* Échantillons de couleur style peinture collée */}
+      <div className="grid grid-cols-6 gap-1.5">
+        {PRESET_COLORS.map(c => (
           <button
             key={c}
             onClick={() => handleSelect(c)}
             disabled={disabled}
-            style={{ backgroundColor: c }}
-            className={`h-12 rounded transition ${
-              selected === c ? 'ring-4 ring-white ring-offset-2 ring-offset-gray-900' : ''
-            }`}
+            style={{
+              height: 36,
+              background: c,
+              border: selected === c
+                ? '3px solid var(--ink-black)'
+                : '1.5px solid rgba(26,22,18,0.25)',
+              cursor: disabled ? 'default' : 'pointer',
+              transform: selected === c ? 'scale(1.1)' : 'none',
+              transition: 'transform 80ms ease',
+              boxShadow: selected === c ? '2px 2px 0 rgba(26,22,18,0.3)' : 'none',
+            }}
           />
         ))}
       </div>
-      <div className="flex gap-3 items-center">
+      {/* Couleur libre */}
+      <div className="flex items-center gap-3">
         <input
           type="color"
-          onChange={(e) => handleSelect(e.target.value)}
+          onChange={e => handleSelect(e.target.value)}
           disabled={disabled}
-          className="h-10 w-14 rounded cursor-pointer bg-transparent border-0"
+          style={{ width: 36, height: 36, cursor: 'pointer', border: '1px solid rgba(26,22,18,0.3)', background: 'transparent' }}
           title="Couleur libre"
         />
-        <span className="text-gray-400 text-sm">Couleur libre</span>
+        <span
+          className="font-stamp"
+          style={{ fontSize: '0.6rem', color: 'rgba(26,22,18,0.5)', letterSpacing: '0.1em' }}
+        >
+          TEINTE LIBRE
+        </span>
         {selected && (
-          <span className="ml-auto font-mono text-xs text-gray-300">{selected.toUpperCase()}</span>
+          <span
+            className="font-typewriter ml-auto"
+            style={{ fontSize: '0.75rem', color: 'rgba(26,22,18,0.7)' }}
+          >
+            {selected.toUpperCase()}
+          </span>
         )}
       </div>
       <button
         onClick={() => selected && onSubmit(selected.toUpperCase())}
         disabled={disabled || !selected}
-        className="bg-white text-black font-bold py-3 rounded disabled:opacity-40"
+        className="btn-stamp w-full"
       >
-        Valider
+        VALIDER
       </button>
     </div>
   );
