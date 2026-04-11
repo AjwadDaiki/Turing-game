@@ -175,3 +175,25 @@ body::after {
 .font-typewriter { font-family: var(--font-typewriter); }
 .font-stamp      { font-family: var(--font-stamp); }
 .font-marker     { font-family: var(--font-marker); }
+
+/* ─── Keyframes (utilisés en inline style et via Tailwind) ───────────────── */
+@keyframes stamp-drop {
+  0%   { transform: scale(1.5) rotate(var(--stamp-rot, -5deg)); opacity: 0; }
+  60%  { transform: scale(0.95) rotate(var(--stamp-rot, -5deg)); opacity: 1; }
+  100% { transform: scale(1.0) rotate(var(--stamp-rot, -5deg)); opacity: 0.88; }
+}
+
+@keyframes paper-drop {
+  0%   { transform: translateY(-24px) rotate(var(--paper-rot, -1deg)); opacity: 0; }
+  100% { transform: translateY(0) rotate(var(--paper-rot, -1deg)); opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes slide-up {
+  0%   { transform: translateY(0) rotate(var(--fly-rot, -3deg)); opacity: 1; }
+  100% { transform: translateY(-110vh) rotate(var(--fly-rot, -3deg)); opacity: 0; }
+}

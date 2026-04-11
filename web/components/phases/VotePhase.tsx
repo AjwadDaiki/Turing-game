@@ -10,7 +10,6 @@ interface Props {
   gameState: GameState;
 }
 
-// Group revealed answers by round for the mini-recap grid
 function groupByRound(answers: RevealedAnswer[]): Map<number, RevealedAnswer[]> {
   const map = new Map<number, RevealedAnswer[]>();
   for (const a of answers) {
@@ -21,15 +20,90 @@ function groupByRound(answers: RevealedAnswer[]): Map<number, RevealedAnswer[]> 
   return map;
 }
 
+/* Pseudo radio button avec coché Permanent Marker */
+function VoteOption({
+  pseudo,
+  selected,
+  onSelect,
+  accentColor,
+}: {
+  pseudo: string;
+  selected: boolean;
+  onSelect: () => void;
+  accentColor: string;
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '8px 12px',
+        background: selected ? `${accentColor}12` : 'transparent',
+        border: `1.5px solid ${selected ? accentColor : 'rgba(26,22,18,0.2)'}`,
+        width: '100%',
+        cursor: 'pointer',
+        transition: 'all 80ms ease',
+        marginBottom: 6,
+        textAlign: 'left',
+      }}
+    >
+      {/* Case à cocher */}
+      <div
+        style={{
+          width: 22,
+          height: 22,
+          border: `2px solid ${selected ? accentColor : 'rgba(26,22,18,0.3)'}`,
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'transparent',
+          transition: 'border-color 80ms ease',
+        }}
+      >
+        {selected && (
+          <span
+            className="font-marker"
+            style={{
+              fontSize: '1.1rem',
+              color: accentColor,
+              lineHeight: 1,
+              animation: 'stamp-drop 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+              display: 'block',
+            }}
+          >
+            ✗
+          </span>
+        )}
+      </div>
+      <span
+        className="font-typewriter"
+        style={{
+          fontSize: '0.85rem',
+          color: selected ? 'var(--ink-black)' : 'rgba(26,22,18,0.65)',
+          letterSpacing: '0.04em',
+          fontWeight: selected ? 700 : 400,
+          transition: 'all 80ms ease',
+        }}
+      >
+        {pseudo}
+      </span>
+    </button>
+  );
+}
+
 export default function VotePhase({ socket, gameState }: Props) {
   const { room, mySocketId, votedPlayerIds, revealedAnswers, epreuveInfoByRound } = gameState;
+
+  const [robotTarget, setRobotTarget] = useState('');
+  const [ninjaTarget, setNinjaTarget] = useState('');
+
   if (!room) return null;
 
   const hasVoted = mySocketId ? votedPlayerIds.has(mySocketId) : false;
   const candidates = room.players.filter((p) => p.socketId !== mySocketId);
-  const [robotTarget, setRobotTarget] = useState('');
-  const [ninjaTarget, setNinjaTarget] = useState('');
-
   const grouped = groupByRound(revealedAnswers);
   const votedCount = votedPlayerIds.size;
   const totalVoters = room.players.length;
@@ -39,45 +113,77 @@ export default function VotePhase({ socket, gameState }: Props) {
     socket.emit('vote:final', { robotTargetId: robotTarget, ninjaTargetId: ninjaTarget });
   }
 
-  if (hasVoted) {
-    return (
-      <main className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6 gap-6">
-        <p className="text-green-400 font-bold text-lg">Vote envoyé ✓</p>
-        <p className="text-gray-400 text-sm">{votedCount}/{totalVoters} joueurs ont voté</p>
-        <div className="flex gap-2">
-          {room.players.map((p) => (
-            <div
-              key={p.socketId}
-              title={p.pseudo}
-              className={`w-3 h-3 rounded-full ${
-                votedPlayerIds.has(p.socketId) ? 'bg-green-400' : 'bg-gray-600'
-              }`}
-            />
-          ))}
-        </div>
-      </main>
-    );
-  }
-
   return (
-    <main className="min-h-screen bg-gray-900 text-white flex flex-col overflow-y-auto">
-      {/* Mini recap grid */}
-      {grouped.size > 0 && (
-        <div className="border-b border-gray-800 p-4">
-          <p className="text-gray-500 text-xs uppercase tracking-wider mb-3">Rappel des réponses</p>
-          <div className="space-y-3">
+    <main className="relative min-h-screen flex flex-col z-20 overflow-hidden">
+      {/* ── Barre top ──────────────────────────────────────────────────────── */}
+      <div
+        className="flex items-center justify-between px-4 py-2 font-stamp flex-shrink-0"
+        style={{
+          fontSize: '0.65rem',
+          color: 'var(--paper-cream)',
+          opacity: 0.55,
+          letterSpacing: '0.1em',
+          borderBottom: '1px solid rgba(232,220,192,0.08)',
+        }}
+      >
+        <span>VOTE FINAL</span>
+        <span>{votedCount}/{totalVoters} VOTANTS</span>
+      </div>
+
+      <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-4 pb-28">
+
+        {/* ── Mini rappel par manche ─────────────────────────────────────── */}
+        {grouped.size > 0 && (
+          <div
+            style={{
+              maxHeight: '40vh',
+              overflowY: 'auto',
+              marginBottom: 20,
+              borderBottom: '1px dashed rgba(26,22,18,0.2)',
+              paddingBottom: 16,
+            }}
+          >
+            <div
+              className="font-stamp mb-2"
+              style={{ fontSize: '0.52rem', color: 'rgba(26,22,18,0.4)', letterSpacing: '0.14em' }}
+            >
+              RAPPEL — DOSSIERS D'ENQUÊTE
+            </div>
+
             {Array.from(grouped.entries())
               .sort(([a], [b]) => a - b)
               .map(([roundNum, answers]) => {
                 const info = epreuveInfoByRound[roundNum];
                 const inputType: EpreuveInputType = info?.inputType ?? 'text';
                 return (
-                  <div key={roundNum}>
-                    <p className="text-gray-600 text-xs mb-1">Manche {roundNum}</p>
-                    <div className="grid grid-cols-3 gap-1.5">
+                  <div key={roundNum} style={{ marginBottom: 10 }}>
+                    <div
+                      className="font-stamp mb-1"
+                      style={{ fontSize: '0.5rem', color: 'rgba(26,22,18,0.45)', letterSpacing: '0.1em' }}
+                    >
+                      MANCHE {String(roundNum).padStart(2, '0')}
+                    </div>
+                    {/* Défilement horizontal */}
+                    <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
                       {answers.map((ans) => (
-                        <div key={ans.playerId} className="bg-gray-800 rounded p-2 min-w-0">
+                        <div
+                          key={ans.playerId}
+                          style={{
+                            flexShrink: 0,
+                            background: 'var(--paper-white)',
+                            border: '1px solid rgba(26,22,18,0.15)',
+                            padding: '6px 8px',
+                            minWidth: 90,
+                            maxWidth: 120,
+                          }}
+                        >
                           <RevealRouter answer={ans} inputType={inputType} compact />
+                          <div
+                            className="font-stamp text-center mt-1"
+                            style={{ fontSize: '0.48rem', color: 'rgba(26,22,18,0.4)', letterSpacing: '0.05em' }}
+                          >
+                            {ans.pseudo ?? '???'}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -85,63 +191,130 @@ export default function VotePhase({ socket, gameState }: Props) {
                 );
               })}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Vote form */}
-      <div className="p-4 space-y-5 max-w-sm mx-auto w-full">
-        <div className="pt-2">
-          <h2 className="text-xl font-bold text-center">Vote final</h2>
-          <p className="text-gray-400 text-xs text-center mt-1">Qui est le Robot ? Qui est le Traître ?</p>
-        </div>
-
-        {/* Robot */}
-        <div>
-          <p className="text-blue-400 font-bold mb-2">🤖 Le Robot, c&apos;est…</p>
-          <div className="space-y-2">
-            {candidates.map((p) => (
-              <button
-                key={p.socketId}
-                onClick={() => setRobotTarget(p.socketId)}
-                className={`w-full text-left px-4 py-3 rounded-lg border transition ${
-                  robotTarget === p.socketId
-                    ? 'border-blue-400 bg-blue-400/10 text-white font-bold'
-                    : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-500'
-                }`}
-              >
-                {p.pseudo}
-              </button>
-            ))}
+        {/* ── Fiche de vote ──────────────────────────────────────────────── */}
+        {hasVoted ? (
+          /* État voté */
+          <div className="flex flex-col items-center justify-center flex-1 gap-6 py-12">
+            <div
+              className="font-marker text-center"
+              style={{
+                fontSize: '1.8rem',
+                color: 'var(--accent-green)',
+                border: '3px solid var(--accent-green)',
+                padding: '8px 24px',
+                transform: 'rotate(-2deg)',
+                animation: 'stamp-drop 0.35s cubic-bezier(0.34,1.56,0.64,1)',
+                opacity: 0.85,
+              }}
+            >
+              VOTE ENREGISTRÉ
+            </div>
+            <div className="flex gap-2 mt-2">
+              {room.players.map((p) => (
+                <div
+                  key={p.socketId}
+                  title={p.pseudo}
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: '50%',
+                    background: votedPlayerIds.has(p.socketId)
+                      ? 'var(--accent-green)'
+                      : 'rgba(232,220,192,0.2)',
+                    boxShadow: votedPlayerIds.has(p.socketId)
+                      ? '0 0 5px var(--accent-green)'
+                      : 'none',
+                    transition: 'all 0.3s ease',
+                  }}
+                />
+              ))}
+            </div>
+            <p
+              className="font-stamp"
+              style={{ fontSize: '0.58rem', color: 'rgba(232,220,192,0.35)', letterSpacing: '0.12em' }}
+            >
+              {totalVoters - votedCount > 0
+                ? `EN ATTENTE DE ${totalVoters - votedCount} AGENT(S)`
+                : 'DÉCOMPTE EN COURS...'}
+            </p>
           </div>
-        </div>
-
-        {/* Ninja */}
-        <div>
-          <p className="text-yellow-400 font-bold mb-2">🥷 Le Traître, c&apos;est…</p>
-          <div className="space-y-2">
-            {candidates.map((p) => (
-              <button
-                key={p.socketId}
-                onClick={() => setNinjaTarget(p.socketId)}
-                className={`w-full text-left px-4 py-3 rounded-lg border transition ${
-                  ninjaTarget === p.socketId
-                    ? 'border-yellow-400 bg-yellow-400/10 text-white font-bold'
-                    : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-500'
-                }`}
+        ) : (
+          /* Formulaire d'accusation */
+          <div
+            className="paper-surface mx-auto w-full"
+            style={{ maxWidth: 480, padding: '20px 24px', position: 'relative' }}
+          >
+            {/* En-tête officiel */}
+            <div
+              className="text-center mb-5"
+              style={{ borderBottom: '1px dashed rgba(26,22,18,0.25)', paddingBottom: 12 }}
+            >
+              <div
+                className="font-stamp"
+                style={{ fontSize: '0.48rem', color: 'rgba(26,22,18,0.4)', letterSpacing: '0.16em' }}
               >
-                {p.pseudo}
-              </button>
-            ))}
-          </div>
-        </div>
+                OPÉRATION TURING — FORMULAIRE D'ACCUSATION
+              </div>
+              <div
+                className="font-typewriter mt-1"
+                style={{ fontSize: '0.62rem', color: 'rgba(26,22,18,0.45)' }}
+              >
+                Confidentiel. À remplir avec discernement.
+              </div>
+            </div>
 
-        <button
-          onClick={handleVote}
-          disabled={!robotTarget || !ninjaTarget}
-          className="w-full bg-white text-black font-bold py-4 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-200 transition"
-        >
-          Confirmer le vote
-        </button>
+            {/* Section Robot */}
+            <div style={{ marginBottom: 20 }}>
+              <div
+                className="font-stamp mb-2"
+                style={{ fontSize: '0.58rem', color: '#1A3A7A', letterSpacing: '0.1em' }}
+              >
+                🤖 SUJET IDENTIFIÉ COMME ROBOT
+              </div>
+              {candidates.map((p) => (
+                <VoteOption
+                  key={p.socketId}
+                  pseudo={p.pseudo}
+                  selected={robotTarget === p.socketId}
+                  onSelect={() => setRobotTarget(p.socketId)}
+                  accentColor="#1A3A7A"
+                />
+              ))}
+            </div>
+
+            <div style={{ borderTop: '1px dashed rgba(26,22,18,0.2)', marginBottom: 20 }} />
+
+            {/* Section Traître */}
+            <div style={{ marginBottom: 24 }}>
+              <div
+                className="font-stamp mb-2"
+                style={{ fontSize: '0.58rem', color: 'var(--stamp-red)', letterSpacing: '0.1em' }}
+              >
+                🥷 SUJET IDENTIFIÉ COMME COMPLICE
+              </div>
+              {candidates.map((p) => (
+                <VoteOption
+                  key={p.socketId}
+                  pseudo={p.pseudo}
+                  selected={ninjaTarget === p.socketId}
+                  onSelect={() => setNinjaTarget(p.socketId)}
+                  accentColor="var(--stamp-red)"
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={handleVote}
+              disabled={!robotTarget || !ninjaTarget}
+              className="btn-stamp w-full"
+              style={{ opacity: !robotTarget || !ninjaTarget ? 0.4 : 1 }}
+            >
+              SCELLER LE VERDICT
+            </button>
+          </div>
+        )}
       </div>
     </main>
   );
