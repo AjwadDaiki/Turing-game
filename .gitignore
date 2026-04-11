@@ -1,0 +1,10 @@
+# Artifacts Windows non supprimables automatiquement
+_empty_tmp/
+server/web/
+
+# Dépendances — chaque sous-projet a le sien
+node_modules/
+
+# Fichiers OS
+.DS_Store
+Thumbs.db
