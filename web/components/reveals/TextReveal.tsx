@@ -7,11 +7,17 @@ interface Props {
 
 export default function TextReveal({ answer, compact }: Props) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-gray-400 text-xs">{answer.pseudo}</span>
-      <p className={`font-bold ${compact ? 'text-sm' : 'text-2xl'} break-words`}>
-        {answer.content ?? '—'}
-      </p>
-    </div>
+    <p
+      className="font-typewriter break-words"
+      style={{
+        fontSize: compact ? '0.72rem' : '1.5rem',
+        fontWeight: 700,
+        color: 'var(--ink-black)',
+        lineHeight: 1.3,
+        wordBreak: 'break-word',
+      }}
+    >
+      {answer.content ?? '—'}
+    </p>
   );
 }

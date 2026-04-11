@@ -9,22 +9,23 @@ interface Props {
 
 export default function DrawReveal({ answer, compact }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const W = compact ? 100 : 280;
-  const H = compact ? 75 : 210;
+  const W = compact ? 90 : 280;
+  const H = compact ? 68 : 210;
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
 
-    ctx.fillStyle = '#1f2937';
+    /* Fond papier crème en mode compact, sombre sinon */
+    ctx.fillStyle = compact ? '#D4C8A8' : '#1f2937';
     ctx.fillRect(0, 0, W, H);
 
     const drawing: Drawing = Array.isArray(answer.content) ? answer.content : [];
     if (!drawing.length) return;
 
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = compact ? 1.5 : 3;
+    ctx.strokeStyle = compact ? '#1A1612' : '#ffffff';
+    ctx.lineWidth = compact ? 1.2 : 2.5;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -41,14 +42,16 @@ export default function DrawReveal({ answer, compact }: Props) {
 
   const hasDrawing = Array.isArray(answer.content) && answer.content.length > 0;
 
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-gray-400 text-xs">{answer.pseudo}</span>
-      {hasDrawing ? (
-        <canvas ref={canvasRef} width={W} height={H} className="rounded block" />
-      ) : (
-        <p className="text-gray-500 italic text-sm">Pas de dessin</p>
-      )}
-    </div>
-  );
+  if (!hasDrawing) {
+    return (
+      <span
+        className="font-typewriter"
+        style={{ fontSize: '0.65rem', color: 'rgba(26,22,18,0.35)', fontStyle: 'italic' }}
+      >
+        pas de dessin
+      </span>
+    );
+  }
+
+  return <canvas ref={canvasRef} width={W} height={H} style={{ display: 'block' }} />;
 }

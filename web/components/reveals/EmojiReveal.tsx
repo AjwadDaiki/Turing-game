@@ -7,9 +7,8 @@ interface Props {
 
 export default function EmojiReveal({ answer, compact }: Props) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-gray-400 text-xs">{answer.pseudo}</span>
-      <p className={compact ? 'text-2xl' : 'text-6xl'}>{answer.content ?? '—'}</p>
-    </div>
+    <p style={{ fontSize: compact ? '1.8rem' : '4rem', lineHeight: 1 }}>
+      {answer.content ?? '—'}
+    </p>
   );
 }

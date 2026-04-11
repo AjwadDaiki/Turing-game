@@ -7,19 +7,38 @@ interface Props {
 
 export default function SliderReveal({ answer, compact }: Props) {
   const value = Number(answer.content) || 0;
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-gray-400 text-xs">{answer.pseudo}</span>
-      {compact ? (
-        <p className="font-bold text-sm">{value}/100</p>
-      ) : (
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-3 bg-gray-700 rounded-full overflow-hidden">
-            <div className="h-full bg-white rounded-full" style={{ width: `${value}%` }} />
-          </div>
-          <span className="font-bold text-xl w-10 text-right">{value}</span>
-        </div>
-      )}
+  return compact ? (
+    <p
+      className="font-stamp"
+      style={{ fontSize: '1.2rem', color: 'var(--ink-black)', letterSpacing: '0.05em' }}
+    >
+      {value}
+      <span style={{ fontSize: '0.55rem', opacity: 0.5, marginLeft: 2 }}>/100</span>
+    </p>
+  ) : (
+    <div className="flex flex-col gap-2">
+      <p
+        className="font-stamp"
+        style={{ fontSize: '2rem', color: 'var(--ink-black)', letterSpacing: '0.05em' }}
+      >
+        {value}
+      </p>
+      <div
+        style={{
+          height: 8,
+          background: 'rgba(26,22,18,0.12)',
+          border: '1px solid rgba(26,22,18,0.2)',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            height: '100%',
+            width: `${value}%`,
+            background: 'var(--ink-black)',
+          }}
+        />
+      </div>
     </div>
   );
 }

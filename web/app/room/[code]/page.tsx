@@ -12,8 +12,13 @@ export default function RoomPage() {
 
   if (!gameState.room) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-        <p className="text-gray-400">Connexion à la salle {code}...</p>
+      <main className="min-h-screen flex items-center justify-center">
+        <p
+          className="font-stamp"
+          style={{ fontSize: '0.65rem', color: 'rgba(232,220,192,0.4)', letterSpacing: '0.15em' }}
+        >
+          CONNEXION À LA SALLE {code}...
+        </p>
       </main>
     );
   }

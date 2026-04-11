@@ -2,6 +2,9 @@
 import { useRef, useState, useEffect } from 'react';
 import { Drawing, Stroke, Point } from '@/lib/clientTypes';
 
+const BG = '#1A1612';
+const INK = '#E8DCC0';
+
 interface Props {
   prompt: string;
   onSubmit: (content: Drawing) => void;
@@ -20,9 +23,9 @@ export default function DrawInput({ prompt, onSubmit, disabled }: Props) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle = '#1f2937';
+    ctx.fillStyle = BG;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = '#ffffff';
+    ctx.strokeStyle = INK;
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -85,7 +88,7 @@ export default function DrawInput({ prompt, onSubmit, disabled }: Props) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
-    ctx.fillStyle = '#1f2937';
+    ctx.fillStyle = BG;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     drawingRef.current = [];
     setHasStrokes(false);
@@ -99,13 +102,16 @@ export default function DrawInput({ prompt, onSubmit, disabled }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-lg text-center font-medium">{prompt}</p>
       <canvas
         ref={canvasRef}
         width={400}
         height={280}
-        className="rounded-xl w-full touch-none"
-        style={{ cursor: submitted ? 'default' : 'crosshair' }}
+        className="w-full touch-none"
+        style={{
+          cursor: submitted ? 'default' : 'crosshair',
+          border: '1px solid rgba(26,22,18,0.25)',
+          display: 'block',
+        }}
         onMouseDown={onPointerDown}
         onMouseMove={onPointerMove}
         onMouseUp={onPointerUp}
@@ -118,16 +124,18 @@ export default function DrawInput({ prompt, onSubmit, disabled }: Props) {
         <button
           onClick={clearCanvas}
           disabled={disabled || submitted || !hasStrokes}
-          className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded disabled:opacity-40 transition"
+          className="flex-1 btn-stamp"
+          style={{ fontSize: '0.7rem', padding: '8px 12px', opacity: (!hasStrokes || submitted) ? 0.4 : 1 }}
         >
-          Effacer
+          EFFACER
         </button>
         <button
           onClick={handleSubmit}
           disabled={disabled || submitted}
-          className="flex-1 bg-white text-black font-bold py-2 rounded disabled:opacity-40"
+          className="flex-1 btn-stamp"
+          style={{ fontSize: '0.7rem', padding: '8px 12px', opacity: submitted ? 0.4 : 1 }}
         >
-          Valider
+          VALIDER
         </button>
       </div>
     </div>

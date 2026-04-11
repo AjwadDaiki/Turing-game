@@ -32,48 +32,95 @@ export default function SwipeInput({ prompt, onSubmit, disabled }: Props) {
 
   if (current >= 6) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 py-12">
-        <p className="text-green-400 font-bold text-lg">Réponse envoyée ✓</p>
+      <div className="flex flex-col items-center justify-center gap-3 py-8">
+        <div
+          className="font-marker"
+          style={{
+            fontSize: '1.4rem',
+            color: 'var(--accent-green)',
+            border: '2.5px solid var(--accent-green)',
+            padding: '6px 18px',
+            transform: 'rotate(-2deg)',
+            animation: 'stamp-drop 0.35s cubic-bezier(0.34,1.56,0.64,1)',
+            opacity: 0.85,
+          }}
+        >
+          ENREGISTRÉ
+        </div>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-lg text-center font-medium">{prompt}</p>
-      <p className="text-gray-400 text-sm text-center">Image {current + 1} / 6</p>
+      {/* Compteur */}
+      <div
+        className="font-stamp text-center"
+        style={{ fontSize: '0.55rem', color: 'rgba(26,22,18,0.4)', letterSpacing: '0.12em' }}
+      >
+        IMAGE {current + 1} / 6
+      </div>
+
+      {/* Photo */}
       <div className="flex justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={images[current]}
           alt={`Image ${current + 1}`}
-          className="w-64 h-64 object-cover rounded-xl"
+          className="w-64 h-64 object-cover"
+          style={{ border: '4px solid var(--paper-white)', boxShadow: '3px 4px 16px rgba(0,0,0,0.5)' }}
           draggable={false}
         />
       </div>
+
+      {/* Boutons directionnels */}
       <div className="flex gap-3">
         <button
           onClick={() => vote('L')}
           disabled={disabled}
-          className="flex-1 bg-red-600 hover:bg-red-500 active:bg-red-700 text-white font-bold py-4 rounded-xl text-xl disabled:opacity-40 transition"
+          className="flex-1 btn-stamp"
+          style={{
+            background: 'rgba(176,38,28,0.12)',
+            borderColor: 'var(--stamp-red)',
+            color: 'var(--stamp-red)',
+            fontSize: '1rem',
+            padding: '14px 0',
+          }}
         >
-          ← Gauche
+          ← L
         </button>
         <button
           onClick={() => vote('D')}
           disabled={disabled}
-          className="flex-1 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white font-bold py-4 rounded-xl text-xl disabled:opacity-40 transition"
+          className="flex-1 btn-stamp"
+          style={{
+            background: 'rgba(74,107,61,0.12)',
+            borderColor: 'var(--accent-green)',
+            color: 'var(--accent-green)',
+            fontSize: '1rem',
+            padding: '14px 0',
+          }}
         >
-          Droite →
+          D →
         </button>
       </div>
-      <div className="flex gap-1 justify-center">
+
+      {/* Pastilles progression */}
+      <div className="flex gap-1.5 justify-center">
         {Array.from({ length: 6 }, (_, i) => (
           <div
             key={i}
-            className={`h-1.5 w-6 rounded-full ${
-              i < current ? 'bg-white' : i === current ? 'bg-gray-400' : 'bg-gray-700'
-            }`}
+            style={{
+              height: 5,
+              width: 20,
+              background:
+                i < current
+                  ? 'var(--paper-cream)'
+                  : i === current
+                  ? 'rgba(232,220,192,0.45)'
+                  : 'rgba(232,220,192,0.15)',
+              transition: 'background 0.2s ease',
+            }}
           />
         ))}
       </div>

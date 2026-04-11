@@ -7,28 +7,27 @@ interface Props {
 
 export default function ListReveal({ answer, compact }: Props) {
   const raw = typeof answer.content === 'string' ? answer.content : '';
-  const items = raw
-    .split(',')
-    .map((s: string) => s.trim())
-    .filter(Boolean);
+  const items = raw.split(',').map((s: string) => s.trim()).filter(Boolean);
 
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-gray-400 text-xs">{answer.pseudo}</span>
-      {compact ? (
-        <p className="text-sm">
-          {items.slice(0, 3).join(', ')}
-          {items.length > 3 ? '…' : ''}
-        </p>
-      ) : (
-        <ul className="list-disc list-inside space-y-1">
-          {items.map((item, i) => (
-            <li key={i} className="text-white text-sm">
-              {item}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+  return compact ? (
+    <p
+      className="font-typewriter"
+      style={{ fontSize: '0.65rem', color: 'var(--ink-black)', lineHeight: 1.4 }}
+    >
+      {items.slice(0, 3).join(', ')}
+      {items.length > 3 ? '…' : ''}
+    </p>
+  ) : (
+    <ol style={{ paddingLeft: 16, margin: 0, listStyle: 'decimal' }}>
+      {items.map((item, i) => (
+        <li
+          key={i}
+          className="font-typewriter"
+          style={{ fontSize: '0.9rem', color: 'var(--ink-black)', marginBottom: 4 }}
+        >
+          {item}
+        </li>
+      ))}
+    </ol>
   );
 }

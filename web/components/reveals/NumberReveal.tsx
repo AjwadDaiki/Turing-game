@@ -7,11 +7,15 @@ interface Props {
 
 export default function NumberReveal({ answer, compact }: Props) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-gray-400 text-xs">{answer.pseudo}</span>
-      <p className={`font-bold font-mono ${compact ? 'text-base' : 'text-3xl'}`}>
-        {answer.content ?? '—'}
-      </p>
-    </div>
+    <p
+      className="font-typewriter font-bold"
+      style={{
+        fontSize: compact ? '1.1rem' : '2.5rem',
+        color: 'var(--ink-black)',
+        letterSpacing: '0.05em',
+      }}
+    >
+      {answer.content ?? '—'}
+    </p>
   );
 }
