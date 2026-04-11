@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { Room, Round, FinalVote } from '../types';
+import { Room, Round } from '../types';
 import { sanitizeRoom, getRoomByPlayerId } from '../rooms/roomManager';
 import { assignRoles } from '../game/roleMachine';
 import { selectEpreuves } from '../game/epreuveSelector';
@@ -10,8 +10,7 @@ import { createTimer } from '../game/timerManager';
 import { getAIAnswer } from '../game/aiPlayer';
 
 const INTRO_DURATION_MS = 3000;
-const RECAP_DURATION_MS = 20000;
-const VOTE_DURATION_MS = 30000;
+const VOTE_DURATION_MS = 45000;
 const DEFILEMENT_AUTO_MS = 30000;
 
 function delay(ms: number): Promise<void> {
@@ -55,13 +54,7 @@ async function runGame(io: Server, room: Room): Promise<void> {
     }
   }
 
-  // ── Recap ──
-  transition(room, 'recap'); // defilement → recap
-  io.to(room.code).emit('phase:changed', { phase: 'recap', roundNumber: 5 });
-  io.to(room.code).emit('room:state', sanitizeRoom(room));
-  await delay(RECAP_DURATION_MS);
-
-  // ── Vote ──
+  // ── Vote (direct après round 5, plus de recap) ──
   transition(room, 'vote');
   io.to(room.code).emit('phase:changed', { phase: 'vote', roundNumber: 5 });
   io.to(room.code).emit('room:state', sanitizeRoom(room));
@@ -220,8 +213,13 @@ export function registerGameHandlers(
     const room = getRoomByPlayerId(rooms, socket.id);
     if (!room || room.currentPhase !== 'epreuve') return;
 
+    const round = room.rounds[room.currentRound - 1];
+    const isFirst = round && !round.answers.has(socket.id);
+
     const allDone = recordAnswer(room, socket.id, content);
-    io.to(room.code).emit('player:answered', { playerId: socket.id });
+
+    // Notify others only on first answer (indicator dots)
+    if (isFirst) io.to(room.code).emit('player:answered', { playerId: socket.id });
 
     if (allDone && (room as any)._epreuveResolve) {
       (room as any)._epreuveResolve();
@@ -251,9 +249,13 @@ export function registerGameHandlers(
     const alreadyVoted = round.suspicions.some(
       (s) => s.voterPlayerId === socket.id && s.type === type
     );
-    if (alreadyVoted) return;
+    if (alreadyVoted) {
+      console.log(`[suspicion] ${socket.id} → ${targetPlayerId} (${type}) IGNORÉ : déjà voté ce type ce round`);
+      return;
+    }
 
     round.suspicions.push({ voterPlayerId: socket.id, targetPlayerId, type });
+    console.log(`[suspicion] ${socket.id} → ${targetPlayerId} (${type}) enregistré`);
   });
 
   // vote:final

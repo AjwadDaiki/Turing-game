@@ -1,4 +1,4 @@
-import { Room, Round, Answer } from '../types';
+import { Room, Round } from '../types';
 
 /** Fisher-Yates shuffle */
 function shuffle<T>(arr: T[]): T[] {
@@ -11,18 +11,19 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 /**
- * Records a player's answer for the current round.
- * Returns true if all active players have now answered (triggers phase transition).
+ * Records (or updates) a player's answer for the current round.
+ * Returns true only on the FIRST answer submission (triggers allAnswered check).
+ * Subsequent calls overwrite the content silently — used by debounced auto-save.
  */
 export function recordAnswer(room: Room, playerId: string, content: any): boolean {
   const round = currentRound(room);
   if (!round) return false;
-  if (round.answers.has(playerId)) return false; // already answered
 
-  const answer: Answer = { playerId, content, submittedAt: Date.now() };
-  round.answers.set(playerId, answer);
+  const isFirst = !round.answers.has(playerId);
+  round.answers.set(playerId, { playerId, content, submittedAt: Date.now() });
 
-  return allAnswered(room, round);
+  // Only check allAnswered on first submission (to trigger early phase transition)
+  return isFirst ? allAnswered(room, round) : false;
 }
 
 /**

@@ -1,6 +1,7 @@
 import { Epreuve, Round } from '../types';
 import { callGroq, GroqResult } from './groqClient';
 import { pickFallback } from './fallbackAnswers';
+import { generateRandomDrawing } from './drawStub';
 
 export type GroqFn = (epreuve: Epreuve) => Promise<GroqResult>;
 export type DelayFn = (ms: number) => Promise<void>;
@@ -35,11 +36,16 @@ export async function getAIAnswer(
     const targetDelay = 3000 + Math.random() * 9000; // 3–12s human-like delay
     const remaining = Math.max(0, targetDelay - elapsed);
     await delayFn(remaining);
-    content = result.content;
+    // For draw épreuves, Groq returns a word — use the stub drawing instead
+    content = epreuve.family === 'dessin'
+      ? generateRandomDrawing() as any
+      : result.content;
   } catch (_err) {
     // Even on error: wait a human-like delay so the AI doesn't "respond" instantly
     await delayFn(3000 + Math.random() * 9000);
-    content = pickFallback(epreuve.family);
+    content = epreuve.family === 'dessin'
+      ? generateRandomDrawing() as any
+      : pickFallback(epreuve.family);
     console.warn(`[ai] Groq fallback used for family '${epreuve.family}'`);
   }
 

@@ -46,14 +46,10 @@ export function transition(room: Room, to: PhaseTarget): void {
       room.currentPhase = 'epreuve';
       return;
 
-    case 'defilement→recap':
+    case 'defilement→vote':
       if (room.currentRound < 5) {
-        throw new Error(`Transition invalide : recap trop tôt (round ${room.currentRound})`);
+        throw new Error(`Transition invalide : vote trop tôt (round ${room.currentRound})`);
       }
-      room.currentPhase = 'recap';
-      return;
-
-    case 'recap→vote':
       room.currentPhase = 'vote';
       return;
 
