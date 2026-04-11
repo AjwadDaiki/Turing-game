@@ -32,7 +32,7 @@ export function createRoom(
     socketId,
     pseudo,
     role: 'civil',
-    traitreCodename: null,
+    codename: null,
     isHost: true,
     isAI: false,
     connected: true,
@@ -62,7 +62,7 @@ export function joinRoom(room: Room, socketId: string, rawPseudo: string): void 
     socketId,
     pseudo,
     role: 'civil',
-    traitreCodename: null,
+    codename: null,
     isHost: false,
     isAI: false,
     connected: true,
@@ -107,7 +107,7 @@ export function sanitizeRoom(room: Room): SanitizedRoom {
     pseudo: p.pseudo,
     isHost: p.isHost,
     connected: p.connected,
-    // role, traitreCodename, isAI intentionally omitted
+    // role, codename, isAI intentionally omitted
   }));
   return {
     code: room.code,

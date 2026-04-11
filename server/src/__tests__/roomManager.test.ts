@@ -152,12 +152,12 @@ describe('getRoomByPlayerId', () => {
 // ─── sanitizeRoom ─────────────────────────────────────────────────────────────
 
 describe('sanitizeRoom', () => {
-  it('never exposes role, traitreCodename or isAI', () => {
+  it('never exposes role, codename or isAI', () => {
     const room = createRoom('SOCK1', 'Alice', new Set());
     const sanitized = sanitizeRoom(room);
     sanitized.players.forEach((p: any) => {
       expect(p.role).toBeUndefined();
-      expect(p.traitreCodename).toBeUndefined();
+      expect(p.codename).toBeUndefined();
       expect(p.isAI).toBeUndefined();
     });
   });

@@ -5,6 +5,7 @@ import { Server } from "socket.io";
 import cors from "cors";
 import { Room } from "./types";
 import { registerRoomHandlers } from "./socket/roomHandlers";
+import { registerGameHandlers } from "./socket/gameHandlers";
 import { startRoomCleaner } from "./rooms/roomCleaner";
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3001;
@@ -34,6 +35,7 @@ app.get("/health", (_req, res) => {
 io.on("connection", (socket) => {
   console.log(`[socket] connected: ${socket.id}`);
   registerRoomHandlers(io, socket, rooms);
+  registerGameHandlers(io, socket, rooms);
 });
 
 startRoomCleaner(rooms);
