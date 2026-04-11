@@ -7,6 +7,7 @@ import { transition } from '../game/stateMachine';
 import { recordAnswer, finalizeRound } from '../game/answerCollector';
 import { computeScores } from '../game/scoring';
 import { createTimer } from '../game/timerManager';
+import { getAIAnswer } from '../game/aiPlayer';
 
 const INTRO_DURATION_MS = 3000;
 const RECAP_DURATION_MS = 20000;
@@ -108,6 +109,11 @@ function emitEpreuveStarted(io: Server, room: Room): void {
     roundNumber: room.currentRound,
   });
   io.to(room.code).emit('room:state', sanitizeRoom(room));
+
+  // Fire-and-forget: AI responds in parallel with the épreuve timer
+  getAIAnswer(round.epreuve, round).catch((err: Error) => {
+    console.error(`[ai] Unexpected error in room ${room.code}:`, err.message);
+  });
 }
 
 function waitForAnswers(room: Room): Promise<void> {
