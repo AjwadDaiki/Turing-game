@@ -2,11 +2,176 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
+/* ─── Design tokens ──────────────────────────────────────────────────────── */
+:root {
+  --bg-metal-dark:    #1C201D;
+  --bg-metal-mid:     #2E3530;
+  --bg-metal-light:   #3F4841;
+  --paper-cream:      #E8DCC0;
+  --paper-white:      #F2EAD3;
+  --paper-shadow:     #A89878;
+  --ink-black:        #1A1612;
+  --stamp-red:        #B0261C;
+  --stamp-red-dark:   #7A1A12;
+  --lamp-orange:      #E8954A;
+  --lamp-orange-glow: #FFCB88;
+  --accent-green:     #4A6B3D;
+
+  --font-typewriter: 'Courier Prime', 'Courier New', monospace;
+  --font-stamp:      'Special Elite', 'Courier New', monospace;
+  --font-marker:     'Permanent Marker', cursive;
+}
+
+/* ─── Reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
+/* ─── Bureau global : fond métal + halo lampe ────────────────────────────── */
 body {
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+  font-family: var(--font-typewriter);
+  color: var(--paper-cream);
+  background-color: var(--bg-metal-dark);
+
+  /* Halo chaud de la lampe au centre */
+  background-image:
+    radial-gradient(
+      ellipse 70% 60% at 50% 45%,
+      rgba(232, 149, 74, 0.12) 0%,
+      rgba(232, 149, 74, 0.05) 35%,
+      transparent 70%
+    ),
+    /* Métal brossé : stries horizontales très subtiles */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.06) 3px,
+      rgba(0, 0, 0, 0.06) 4px
+    );
 }
+
+/* ─── Grain analogique global (film 35mm) ────────────────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  /* SVG feTurbulence pour grain de film */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+}
+
+/* ─── Surface papier crème (fiches, formulaires) ─────────────────────────── */
+.paper-surface {
+  background-color: var(--paper-cream);
+  color: var(--ink-black);
+  font-family: var(--font-typewriter);
+  /* Texture papier : lignes de fibres très subtiles */
+  background-image:
+    repeating-linear-gradient(
+      93deg,
+      transparent,
+      transparent 8px,
+      rgba(160, 130, 80, 0.04) 8px,
+      rgba(160, 130, 80, 0.04) 9px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 22px,
+      rgba(160, 130, 80, 0.06) 22px,
+      rgba(160, 130, 80, 0.06) 23px
+    );
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.45),
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(160, 130, 80, 0.15);
+}
+
+/* ─── Dividers style formulaire ──────────────────────────────────────────── */
+.form-divider {
+  border: none;
+  border-top: 1px solid rgba(26, 22, 18, 0.25);
+  margin: 0;
+}
+
+/* ─── Tampon générique ───────────────────────────────────────────────────── */
+.stamp {
+  font-family: var(--font-marker);
+  color: var(--stamp-red);
+  display: inline-block;
+  border: 3px solid var(--stamp-red);
+  padding: 2px 8px;
+  opacity: 0.88;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  mix-blend-mode: multiply;
+}
+
+/* ─── Champ de saisie style formulaire vintage ───────────────────────────── */
+.field-line {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(26, 22, 18, 0.4);
+  outline: none;
+  font-family: var(--font-typewriter);
+  font-size: 1rem;
+  color: var(--ink-black);
+  padding: 4px 2px;
+  width: 100%;
+  caret-color: var(--ink-black);
+}
+
+.field-line::placeholder {
+  color: rgba(26, 22, 18, 0.35);
+  font-style: italic;
+}
+
+.field-line:focus {
+  border-bottom-color: var(--ink-black);
+  background: rgba(26, 22, 18, 0.03);
+}
+
+/* ─── Bouton tamponné ────────────────────────────────────────────────────── */
+.btn-stamp {
+  font-family: var(--font-stamp);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background-color: var(--paper-cream);
+  color: var(--ink-black);
+  border: 2px solid var(--stamp-red);
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: transform 80ms ease, box-shadow 80ms ease;
+  box-shadow: 2px 2px 0 var(--stamp-red-dark);
+}
+
+.btn-stamp:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--stamp-red-dark);
+}
+
+.btn-stamp:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0 0 0 var(--stamp-red-dark);
+}
+
+.btn-stamp:disabled {
+  border-color: var(--paper-shadow);
+  color: var(--paper-shadow);
+  box-shadow: 1px 1px 0 rgba(160, 130, 80, 0.3);
+  cursor: not-allowed;
+}
+
+/* ─── Police raccourcis ──────────────────────────────────────────────────── */
+.font-typewriter { font-family: var(--font-typewriter); }
+.font-stamp      { font-family: var(--font-stamp); }
+.font-marker     { font-family: var(--font-marker); }
