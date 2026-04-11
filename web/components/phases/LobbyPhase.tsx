@@ -12,55 +12,154 @@ export default function LobbyPhase({ socket, gameState }: Props) {
   if (!room) return null;
 
   const isHost = room.hostSocketId === mySocketId;
-  const connectedCount = room.players.filter((p) => p.connected).length;
+  const connectedCount = room.players.filter(p => p.connected).length;
   const canStart = connectedCount >= 4;
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-5xl font-bold tracking-widest mb-2">TURING</h1>
-      <p className="text-gray-400 mb-1 text-sm">Salle</p>
-      <p className="font-mono font-bold text-3xl tracking-widest mb-8">{room.code}</p>
+    <main className="relative min-h-screen flex flex-col items-center justify-center p-4 z-20">
 
-      <div className="w-full max-w-xs bg-gray-800 rounded-xl p-4 mb-8">
-        <h2 className="text-gray-400 text-xs uppercase tracking-wider mb-3">
-          Joueurs ({connectedCount})
-        </h2>
-        <ul className="space-y-2">
-          {room.players.map((p) => (
-            <li key={p.socketId} className="flex items-center gap-2">
+      {/* Fiche principale sur papier */}
+      <div
+        className="paper-surface w-full"
+        style={{
+          maxWidth: 440,
+          padding: '28px 28px 24px',
+          transform: 'rotate(0.4deg)',
+        }}
+      >
+        {/* En-tête formulaire */}
+        <div
+          className="font-stamp text-center mb-1"
+          style={{ fontSize: '0.6rem', color: 'rgba(26,22,18,0.45)', letterSpacing: '0.14em' }}
+        >
+          LISTE D&apos;ACCÈS — DOSSIER CLASSIFIÉ
+        </div>
+
+        {/* Code de la salle */}
+        <div className="text-center mb-4">
+          <div
+            className="font-stamp inline-block px-4 py-1 mt-1"
+            style={{
+              fontSize: '2rem',
+              letterSpacing: '0.35em',
+              color: 'var(--ink-black)',
+              border: '1.5px dashed rgba(26,22,18,0.35)',
+            }}
+          >
+            {room.code}
+          </div>
+          <div
+            className="font-typewriter mt-1"
+            style={{ fontSize: '0.6rem', color: 'rgba(26,22,18,0.4)', letterSpacing: '0.1em' }}
+          >
+            CODE D&apos;ACCÈS — COMMUNIQUER AUX AGENTS
+          </div>
+        </div>
+
+        <hr className="form-divider mb-4" />
+
+        {/* En-tête liste */}
+        <div
+          className="font-stamp flex justify-between mb-3 text-xs uppercase tracking-widest"
+          style={{ color: 'rgba(26,22,18,0.5)' }}
+        >
+          <span>N°</span>
+          <span style={{ flex: 1, paddingLeft: 12 }}>Alias</span>
+          <span>Statut</span>
+        </div>
+
+        {/* Liste des joueurs */}
+        <ul className="flex flex-col gap-2 mb-5">
+          {room.players.map((p, i) => (
+            <li
+              key={p.socketId}
+              className="font-typewriter flex items-center gap-3"
+              style={{
+                fontSize: '0.95rem',
+                color: p.connected ? 'var(--ink-black)' : 'rgba(26,22,18,0.35)',
+                paddingBottom: 6,
+                borderBottom: '1px solid rgba(26,22,18,0.08)',
+              }}
+            >
+              {/* Numéro */}
               <span
-                className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                  p.connected ? 'bg-green-400' : 'bg-gray-600'
-                }`}
-              />
-              <span className={p.connected ? 'text-white' : 'text-gray-500'}>{p.pseudo}</span>
-              {p.socketId === mySocketId && (
-                <span className="text-gray-500 text-xs">(moi)</span>
-              )}
+                className="font-stamp"
+                style={{ fontSize: '0.7rem', color: 'rgba(26,22,18,0.4)', minWidth: 22 }}
+              >
+                {String(i + 1).padStart(2, '0')}.
+              </span>
+
+              {/* Pseudo */}
+              <span style={{ flex: 1 }}>
+                {p.pseudo}
+                {p.socketId === mySocketId && (
+                  <span className="font-stamp ml-2" style={{ fontSize: '0.6rem', color: 'rgba(26,22,18,0.35)' }}>(vous)</span>
+                )}
+              </span>
+
+              {/* Badge hôte */}
               {p.isHost && (
-                <span className="ml-auto text-yellow-400 text-xs">Hôte</span>
+                <span
+                  className="font-marker"
+                  style={{ fontSize: '0.65rem', color: 'var(--stamp-red)', transform: 'rotate(-2deg)', display: 'inline-block', opacity: 0.8 }}
+                >
+                  RESP.
+                </span>
               )}
+
+              {/* Voyant de connexion */}
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  background: p.connected ? 'var(--accent-green)' : 'rgba(26,22,18,0.2)',
+                  boxShadow: p.connected ? '0 0 6px var(--accent-green)' : 'none',
+                  flexShrink: 0,
+                }}
+              />
             </li>
           ))}
         </ul>
-        {connectedCount < 4 && (
-          <p className="text-gray-500 text-xs mt-3 text-center">
-            Il faut {4 - connectedCount} joueur{4 - connectedCount > 1 ? 's' : ''} de plus
+
+        <hr className="form-divider mb-4" />
+
+        {/* Zone action */}
+        {isHost ? (
+          <div className="flex flex-col items-center gap-2">
+            {!canStart && (
+              <p
+                className="font-typewriter text-center"
+                style={{ fontSize: '0.75rem', color: 'rgba(26,22,18,0.5)', letterSpacing: '0.05em' }}
+              >
+                {4 - connectedCount} agent{4 - connectedCount > 1 ? 's' : ''} manquant{4 - connectedCount > 1 ? 's' : ''}
+              </p>
+            )}
+            <button
+              onClick={() => socket.emit('game:start')}
+              disabled={!canStart}
+              className="btn-stamp w-full"
+              style={{
+                fontSize: '0.85rem',
+                ...(canStart ? {} : {
+                  borderColor: 'rgba(26,22,18,0.25)',
+                  color: 'rgba(26,22,18,0.3)',
+                  boxShadow: 'none',
+                }),
+              }}
+            >
+              LANCER L&apos;OPÉRATION
+            </button>
+          </div>
+        ) : (
+          <p
+            className="font-stamp text-center text-xs uppercase tracking-widest"
+            style={{ color: 'rgba(26,22,18,0.4)' }}
+          >
+            En attente du responsable...
           </p>
         )}
       </div>
-
-      {isHost ? (
-        <button
-          onClick={() => socket.emit('game:start')}
-          disabled={!canStart}
-          className="bg-white text-black font-bold px-10 py-3 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-200 transition"
-        >
-          {canStart ? 'Lancer la partie' : `Attente de joueurs...`}
-        </button>
-      ) : (
-        <p className="text-gray-500 text-sm">En attente que l&apos;hôte lance la partie…</p>
-      )}
     </main>
   );
 }
