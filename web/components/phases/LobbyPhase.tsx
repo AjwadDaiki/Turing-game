@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { Socket } from 'socket.io-client';
 import { GameState } from '@/hooks/useGameState';
 
@@ -9,16 +10,24 @@ interface Props {
 
 export default function LobbyPhase({ socket, gameState }: Props) {
   const { room, mySocketId } = gameState;
+  const [copied, setCopied] = useState(false);
+
   if (!room) return null;
 
   const isHost = room.hostSocketId === mySocketId;
   const connectedCount = room.players.filter(p => p.connected).length;
   const canStart = connectedCount >= 4;
 
+  function handleCopy() {
+    navigator.clipboard.writeText(room!.code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center p-4 z-20">
 
-      {/* Fiche principale sur papier */}
       <div
         className="paper-surface w-full"
         style={{
@@ -35,24 +44,45 @@ export default function LobbyPhase({ socket, gameState }: Props) {
           LISTE D&apos;ACCÈS — DOSSIER CLASSIFIÉ
         </div>
 
-        {/* Code de la salle */}
+        {/* Code de la salle — immense */}
         <div className="text-center mb-4">
           <div
-            className="font-stamp inline-block px-4 py-1 mt-1"
+            className="font-stamp inline-block px-5 py-2 mt-1"
             style={{
-              fontSize: '2rem',
-              letterSpacing: '0.35em',
+              fontSize: '3.5rem',
+              letterSpacing: '0.5em',
               color: 'var(--ink-black)',
-              border: '1.5px dashed rgba(26,22,18,0.35)',
+              border: '2px dashed rgba(26,22,18,0.3)',
             }}
           >
             {room.code}
           </div>
+
+          {/* Bouton copier */}
+          <div className="mt-2 flex items-center justify-center gap-2">
+            <button
+              onClick={handleCopy}
+              className="font-stamp"
+              style={{
+                fontSize: '0.55rem',
+                letterSpacing: '0.08em',
+                color: copied ? 'var(--accent-green)' : 'rgba(26,22,18,0.5)',
+                border: `1px solid ${copied ? 'var(--accent-green)' : 'rgba(26,22,18,0.25)'}`,
+                background: 'transparent',
+                padding: '3px 10px',
+                cursor: 'pointer',
+                transition: 'all 150ms ease',
+              }}
+            >
+              {copied ? 'COPIÉ ✓' : 'COPIER LE CODE'}
+            </button>
+          </div>
+
           <div
             className="font-typewriter mt-1"
             style={{ fontSize: '0.6rem', color: 'rgba(26,22,18,0.4)', letterSpacing: '0.1em' }}
           >
-            CODE D&apos;ACCÈS — COMMUNIQUER AUX AGENTS
+            COMMUNIQUER AUX AGENTS
           </div>
         </div>
 
@@ -68,7 +98,7 @@ export default function LobbyPhase({ socket, gameState }: Props) {
           <span>Statut</span>
         </div>
 
-        {/* Liste des joueurs */}
+        {/* Liste des joueurs — paper-drop animé */}
         <ul className="flex flex-col gap-2 mb-5">
           {room.players.map((p, i) => (
             <li
@@ -79,6 +109,8 @@ export default function LobbyPhase({ socket, gameState }: Props) {
                 color: p.connected ? 'var(--ink-black)' : 'rgba(26,22,18,0.35)',
                 paddingBottom: 6,
                 borderBottom: '1px solid rgba(26,22,18,0.08)',
+                animation: 'paper-drop 0.4s ease-out both',
+                animationDelay: `${i * 100}ms`,
               }}
             >
               {/* Numéro */}
@@ -107,7 +139,7 @@ export default function LobbyPhase({ socket, gameState }: Props) {
                 </span>
               )}
 
-              {/* Voyant de connexion */}
+              {/* Voyant de connexion avec pulse */}
               <span
                 style={{
                   width: 8,
@@ -116,6 +148,7 @@ export default function LobbyPhase({ socket, gameState }: Props) {
                   background: p.connected ? 'var(--accent-green)' : 'rgba(26,22,18,0.2)',
                   boxShadow: p.connected ? '0 0 6px var(--accent-green)' : 'none',
                   flexShrink: 0,
+                  animation: p.connected ? 'connection-pulse 2s ease-in-out infinite' : 'none',
                 }}
               />
             </li>
