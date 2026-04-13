@@ -74,8 +74,8 @@ function ScoreRow({
   return (
     <div
       style={{
-        background: 'var(--paper-white)',
-        border: isWinner ? '2px solid var(--lamp-orange)' : '1px solid rgba(26,22,18,0.2)',
+        background: isWinner ? 'rgba(232,149,74,0.04)' : 'var(--paper-white)',
+        border: isWinner ? '2px solid var(--lamp-orange)' : '1px solid rgba(26,22,18,0.15)',
         padding: '12px 16px',
         marginBottom: 8,
         opacity: visible ? 1 : 0,
@@ -86,17 +86,16 @@ function ScoreRow({
     >
       {isWinner && (
         <span
-          className="font-marker"
+          className="stamp-mark stamp-mark--orange font-marker"
           style={{
             position: 'absolute',
             top: -11,
             right: 12,
             fontSize: '0.75rem',
-            color: 'var(--lamp-orange)',
             background: 'var(--paper-white)',
-            padding: '0 5px',
-            border: '1.5px solid var(--lamp-orange)',
-            transform: 'rotate(-2deg)',
+            padding: '1px 6px',
+            transform: 'rotate(-3deg)',
+            animation: 'stamp-drop 0.35s cubic-bezier(0.34,1.56,0.64,1)',
           }}
         >
           GAGNANT

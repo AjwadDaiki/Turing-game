@@ -40,8 +40,9 @@ function VoteOption({
         alignItems: 'center',
         gap: 12,
         padding: '8px 12px',
-        background: selected ? `${accentColor}12` : 'transparent',
+        background: selected ? `${accentColor}15` : 'transparent',
         border: `1.5px solid ${selected ? accentColor : 'rgba(26,22,18,0.2)'}`,
+        boxShadow: selected ? `inset 0 1px 3px ${accentColor}18` : 'none',
         width: '100%',
         cursor: 'pointer',
         transition: 'all 80ms ease',
@@ -198,15 +199,12 @@ export default function VotePhase({ socket, gameState }: Props) {
           /* État voté */
           <div className="flex flex-col items-center justify-center flex-1 gap-6 py-12">
             <div
-              className="font-marker text-center"
+              className="stamp-mark stamp-mark--green font-marker"
               style={{
                 fontSize: '1.8rem',
-                color: 'var(--accent-green)',
-                border: '3px solid var(--accent-green)',
                 padding: '8px 24px',
                 transform: 'rotate(-2deg)',
                 animation: 'stamp-drop 0.35s cubic-bezier(0.34,1.56,0.64,1)',
-                opacity: 0.85,
               }}
             >
               VOTE ENREGISTRÉ
