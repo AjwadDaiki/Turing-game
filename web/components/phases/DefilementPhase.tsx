@@ -10,9 +10,9 @@ interface Props {
   gameState: GameState;
 }
 
-/* Rotation déterministe par position pour éviter les flashes */
+/* Rotation déterministe par position */
 const ROTATIONS = [-2.5, 1.8, -1.2, 3.1, -2.8, 1.4, -3.2, 2.0, -0.8, 2.6, -1.6, 3.4];
-const STAMP_ROTS  = [-8, 7, -12, 9, -6, 11, -9, 8];
+const STAMP_ROTS = [-8, 7, -12, 9, -6, 11, -9, 8];
 
 /* ─── Polaroid individuel ──────────────────────────────────────────────────── */
 function Polaroid({
@@ -33,7 +33,6 @@ function Polaroid({
   const rot = ROTATIONS[index % ROTATIONS.length];
   const isOwnAnswer = answer.playerId === mySocketId;
 
-  /* Tampons déjà posés */
   const robotStampRot = STAMP_ROTS[(index * 3) % STAMP_ROTS.length];
   const ninjaStampRot = STAMP_ROTS[(index * 3 + 1) % STAMP_ROTS.length];
 
@@ -50,10 +49,11 @@ function Polaroid({
       <div
         style={{
           background: 'var(--paper-white)',
-          padding: '10px 10px 32px',
-          boxShadow: '4px 6px 20px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)',
-          width: 160,
-          minHeight: 180,
+          padding: '14px 14px 44px',
+          boxShadow:
+            '0 1px 2px rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.35)',
+          width: 200,
+          minHeight: 220,
           position: 'relative',
         }}
       >
@@ -61,45 +61,43 @@ function Polaroid({
         <div
           style={{
             background: '#D4C8A8',
-            minHeight: 110,
+            minHeight: 140,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             overflow: 'hidden',
-            padding: 6,
+            padding: 8,
           }}
         >
           <RevealRouter answer={answer} inputType={inputType as any} compact />
         </div>
 
-        {/* Étiquette pseudo */}
+        {/* Pseudo masqué — affiche ??? */}
         <div
           className="font-typewriter text-center"
           style={{
             position: 'absolute',
-            bottom: 8,
-            left: 0, right: 0,
-            fontSize: '0.62rem',
-            color: 'rgba(26,22,18,0.7)',
-            letterSpacing: '0.06em',
+            bottom: 12,
+            left: 0,
+            right: 0,
+            fontSize: '0.7rem',
+            color: 'rgba(26,22,18,0.35)',
+            letterSpacing: '0.08em',
           }}
         >
-          {answer.pseudo ?? 'SUJET'}
+          SUJET N°{String(index + 1).padStart(2, '0')}
         </div>
 
         {/* Tampon ROBOT posé */}
         {suspicionState.robot && (
           <div
-            className="font-marker"
+            className="stamp-mark stamp-mark--blue font-marker"
             style={{
               position: 'absolute',
-              top: '30%', left: '50%',
+              top: '28%',
+              left: '50%',
               transform: `translate(-50%, -50%) rotate(${robotStampRot}deg)`,
-              color: '#1A3A7A',
-              fontSize: '1rem',
-              border: '2.5px solid #1A3A7A',
-              padding: '2px 6px',
-              opacity: 0.82,
+              fontSize: '0.9rem',
               whiteSpace: 'nowrap',
               lineHeight: 1,
               animation: 'stamp-drop 0.35s cubic-bezier(0.34,1.56,0.64,1)',
@@ -113,16 +111,13 @@ function Polaroid({
         {/* Tampon COMPLICE posé */}
         {suspicionState.ninja && (
           <div
-            className="font-marker"
+            className="stamp-mark font-marker"
             style={{
               position: 'absolute',
-              top: '60%', left: '50%',
+              top: '58%',
+              left: '50%',
               transform: `translate(-50%, -50%) rotate(${ninjaStampRot}deg)`,
-              color: 'var(--stamp-red)',
-              fontSize: '1rem',
-              border: '2.5px solid var(--stamp-red)',
-              padding: '2px 6px',
-              opacity: 0.82,
+              fontSize: '0.9rem',
               whiteSpace: 'nowrap',
               lineHeight: 1,
               animation: 'stamp-drop 0.35s cubic-bezier(0.34,1.56,0.64,1)',
@@ -134,47 +129,44 @@ function Polaroid({
         )}
       </div>
 
-      {/* Boutons de suspicion — en coin du polaroid, visible sur mobile, hover sur desktop */}
+      {/* Boutons de suspicion — sous le polaroid, avec labels */}
       {!isOwnAnswer && (
         <div
-          className="absolute -bottom-7 left-0 right-0 flex justify-center gap-2"
-          style={{ opacity: 1 }}
+          className="flex justify-center gap-3 mt-2"
         >
           <button
             onClick={() => onSuspect(answer.playerId, 'robot')}
             disabled={suspicionState.robot}
-            title="Suspecter Robot"
+            className="font-stamp"
             style={{
-              width: 26, height: 26,
-              borderRadius: '50%',
-              background: suspicionState.robot ? 'rgba(26,58,122,0.2)' : 'rgba(26,58,122,0.85)',
+              padding: '4px 10px',
+              fontSize: '0.55rem',
+              letterSpacing: '0.08em',
+              background: suspicionState.robot ? 'rgba(26,58,122,0.15)' : 'rgba(26,58,122,0.85)',
               border: '1.5px solid #1A3A7A',
-              color: 'var(--paper-cream)',
-              fontSize: '0.65rem',
+              color: suspicionState.robot ? '#1A3A7A' : 'var(--paper-cream)',
               cursor: suspicionState.robot ? 'default' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 80ms ease',
             }}
           >
-            🤖
+            ROBOT
           </button>
           <button
             onClick={() => onSuspect(answer.playerId, 'ninja')}
             disabled={suspicionState.ninja}
-            title="Suspecter Complice"
+            className="font-stamp"
             style={{
-              width: 26, height: 26,
-              borderRadius: '50%',
-              background: suspicionState.ninja ? 'rgba(176,38,28,0.2)' : 'rgba(176,38,28,0.85)',
+              padding: '4px 10px',
+              fontSize: '0.55rem',
+              letterSpacing: '0.08em',
+              background: suspicionState.ninja ? 'rgba(176,38,28,0.15)' : 'rgba(176,38,28,0.85)',
               border: '1.5px solid var(--stamp-red)',
-              color: 'var(--paper-cream)',
-              fontSize: '0.65rem',
+              color: suspicionState.ninja ? 'var(--stamp-red)' : 'var(--paper-cream)',
               cursor: suspicionState.ninja ? 'default' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 80ms ease',
             }}
           >
-            🥷
+            COMPLICE
           </button>
         </div>
       )}
@@ -190,21 +182,29 @@ export default function DefilementPhase({ socket, gameState }: Props) {
   const isHost = room.hostSocketId === mySocketId;
   const totalAnswers = room.players.length;
 
-  /* Suspicions locales par playerId : {robot, ninja} */
   const [suspicions, setSuspicions] = useState<Record<string, { robot: boolean; ninja: boolean }>>({});
 
   function addSuspicion(targetPlayerId: string, type: 'robot' | 'ninja') {
     setSuspicions(prev => ({
       ...prev,
-      [targetPlayerId]: { ...( prev[targetPlayerId] ?? { robot: false, ninja: false }), [type]: true },
+      [targetPlayerId]: { ...(prev[targetPlayerId] ?? { robot: false, ninja: false }), [type]: true },
     }));
     socket.emit('suspicion:add', { targetPlayerId, type });
   }
 
   const isAllRevealed = revealedAnswers.length >= totalAnswers;
 
+  function handleHostClick() {
+    if (!isHost) return;
+    socket.emit('defilement:next');
+  }
+
   return (
-    <main className="relative min-h-screen flex flex-col z-20 overflow-hidden">
+    <main
+      className="relative min-h-screen flex flex-col z-20 overflow-hidden"
+      onClick={handleHostClick}
+      style={{ cursor: isHost ? 'pointer' : 'default' }}
+    >
       {/* Barre top */}
       <div
         className="flex items-center justify-between px-4 py-2 font-stamp"
@@ -217,7 +217,7 @@ export default function DefilementPhase({ socket, gameState }: Props) {
           flexShrink: 0,
         }}
       >
-        <span>MANCHE {String(epreuveInfo.roundNumber).padStart(2, '0')}/05 — DÉFILEMENT</span>
+        <span>MANCHE {String(epreuveInfo.roundNumber).padStart(2, '0')}/05 — PIÈCES À CONVICTION</span>
         <span>{revealedAnswers.length}/{totalAnswers}</span>
       </div>
 
@@ -226,18 +226,20 @@ export default function DefilementPhase({ socket, gameState }: Props) {
         {revealedAnswers.length === 0 ? (
           <div className="text-center">
             {/* Pile de polaroids vierges */}
-            <div className="relative inline-block mb-8" style={{ width: 160, height: 200 }}>
+            <div className="relative inline-block mb-8" style={{ width: 200, height: 240 }}>
               {[3, 2, 1, 0].map(i => (
                 <div
                   key={i}
                   style={{
                     position: i === 0 ? 'relative' : 'absolute',
-                    top: i * 3, left: i * 2,
-                    width: 160, height: 200,
+                    top: i * 3,
+                    left: i * 2,
+                    width: 200,
+                    height: 240,
                     background: 'var(--paper-white)',
-                    boxShadow: '2px 3px 12px rgba(0,0,0,0.4)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.25)',
                     transform: `rotate(${(i - 2) * 1.5}deg)`,
-                    padding: '10px 10px 40px',
+                    padding: '14px 14px 50px',
                   }}
                 >
                   <div style={{ height: '100%', background: '#D4C8A8', opacity: 0.4 }} />
@@ -248,14 +250,15 @@ export default function DefilementPhase({ socket, gameState }: Props) {
               className="font-stamp"
               style={{ fontSize: '0.7rem', color: 'var(--paper-cream)', opacity: 0.5, letterSpacing: '0.1em' }}
             >
-              {isHost ? 'APPUYEZ SUR LE TAMPON POUR RÉVÉLER' : "EN ATTENTE DE L'ENQUÊTEUR EN CHEF..."}
+              {isHost ? 'CLIQUEZ POUR RÉVÉLER LES PIÈCES' : "EN ATTENTE DE L'ENQUÊTEUR EN CHEF..."}
             </p>
           </div>
         ) : (
           /* Grille lâche de polaroids */
           <div
             className="flex flex-wrap justify-center"
-            style={{ gap: '2.5rem', maxWidth: 700 }}
+            style={{ gap: '2.5rem', maxWidth: 800 }}
+            onClick={e => e.stopPropagation()} /* empêche le click-anywhere sur les polaroids */
           >
             {revealedAnswers.map((answer, i) => (
               <Polaroid
@@ -272,34 +275,20 @@ export default function DefilementPhase({ socket, gameState }: Props) {
         )}
       </div>
 
-      {/* Bouton hôte : tampon rouge en bas */}
+      {/* Hint cliquable pour l'hôte — sticky bottom */}
       {isHost && (
         <div
-          className="fixed bottom-6 right-6 z-30"
+          className="fixed bottom-0 left-0 right-0 z-30 text-center py-4 font-stamp"
+          style={{
+            fontSize: '0.6rem',
+            color: 'var(--paper-cream)',
+            opacity: 0.3,
+            letterSpacing: '0.15em',
+            background: 'linear-gradient(transparent, rgba(28,32,29,0.6))',
+            pointerEvents: 'none',
+          }}
         >
-          <button
-            onClick={() => socket.emit('defilement:next')}
-            style={{
-              width: 80, height: 80,
-              borderRadius: '50%',
-              background: 'var(--stamp-red)',
-              border: '3px solid var(--stamp-red-dark)',
-              color: 'var(--paper-cream)',
-              fontFamily: 'var(--font-marker)',
-              fontSize: '0.7rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.04em',
-              cursor: 'pointer',
-              boxShadow: '3px 4px 0 var(--stamp-red-dark), 0 8px 20px rgba(176,38,28,0.4)',
-              lineHeight: 1.2,
-              transition: 'transform 80ms ease, box-shadow 80ms ease',
-              textAlign: 'center',
-            }}
-            onMouseDown={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'translate(2px,3px)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 0 var(--stamp-red-dark)'; }}
-            onMouseUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = ''; (e.currentTarget as HTMLButtonElement).style.boxShadow = ''; }}
-          >
-            {isAllRevealed ? 'SUITE →' : 'SUIVANT'}
-          </button>
+          {isAllRevealed ? 'CLIQUER POUR CONTINUER ▸' : 'CLIQUER POUR RÉVÉLER ▸'}
         </div>
       )}
     </main>
