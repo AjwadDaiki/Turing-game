@@ -17,28 +17,35 @@ interface Props {
   gameState: GameState;
 }
 
-/* ─── Timer circulaire analogique ─────────────────────────────────────────── */
-function AnalogTimer({ totalSeconds }: { totalSeconds: number }) {
+/* ─── Timer circulaire analogique (96px, tremblement <10s) ───────────────── */
+function AnalogTimer({ totalSeconds, onTimeUp }: { totalSeconds: number; onTimeUp?: () => void }) {
   const [elapsed, setElapsed] = useState(0);
+  const calledRef = useRef(false);
 
   useEffect(() => {
     setElapsed(0);
+    calledRef.current = false;
     const start = Date.now();
     const iv = setInterval(() => {
       const e = (Date.now() - start) / 1000;
-      setElapsed(Math.min(e, totalSeconds));
+      const clamped = Math.min(e, totalSeconds);
+      setElapsed(clamped);
+      if (clamped >= totalSeconds && !calledRef.current) {
+        calledRef.current = true;
+        onTimeUp?.();
+      }
     }, 100);
     return () => clearInterval(iv);
-  }, [totalSeconds]);
+  }, [totalSeconds, onTimeUp]);
 
-  const pct = elapsed / totalSeconds; // 0 → 1
-  const r = 26;
-  const cx = 32;
-  const cy = 32;
+  const pct = elapsed / totalSeconds;
+  const SIZE = 96;
+  const r = 38;
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
   const circumference = 2 * Math.PI * r;
   const dashOffset = circumference * (1 - pct);
 
-  /* Couleur : vert → jaune → rouge */
   const remaining = 1 - pct;
   const arcColor = remaining > 0.5
     ? '#4A6B3D'
@@ -46,55 +53,73 @@ function AnalogTimer({ totalSeconds }: { totalSeconds: number }) {
     ? '#D4A040'
     : '#B0261C';
 
-  /* Aiguille des secondes */
   const angle = pct * 360 - 90;
   const rad = (angle * Math.PI) / 180;
-  const needleX = cx + r * 0.75 * Math.cos(rad);
-  const needleY = cy + r * 0.75 * Math.sin(rad);
+  const needleX = cx + r * 0.72 * Math.cos(rad);
+  const needleY = cy + r * 0.72 * Math.sin(rad);
+
+  const isUrgent = remaining < 0.17;
+  const remainSec = Math.max(0, Math.ceil(totalSeconds - elapsed));
 
   return (
-    <svg width="64" height="64" viewBox="0 0 64 64">
-      {/* Fond cercle */}
-      <circle cx={cx} cy={cy} r={r} fill="rgba(26,22,18,0.08)" stroke="rgba(26,22,18,0.15)" strokeWidth="1.5" />
-      {/* Arc restant */}
-      <circle
-        cx={cx} cy={cy} r={r}
-        fill="none"
-        stroke={arcColor}
-        strokeWidth="4"
-        strokeDasharray={circumference}
-        strokeDashoffset={dashOffset}
-        strokeLinecap="round"
-        transform={`rotate(-90 ${cx} ${cy})`}
-        style={{ transition: 'stroke-dashoffset 0.1s linear, stroke 0.5s ease' }}
-        opacity={remaining < 0.2 ? (Math.sin(Date.now() / 200) * 0.3 + 0.7) : 1}
-      />
-      {/* Aiguille */}
-      <line
-        x1={cx} y1={cy}
-        x2={needleX} y2={needleY}
-        stroke="var(--ink-black)"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        style={{ transition: 'none' }}
-      />
-      <circle cx={cx} cy={cy} r={2.5} fill="var(--ink-black)" />
-      {/* Marques */}
-      {[0, 90, 180, 270].map(a => {
-        const ar = ((a - 90) * Math.PI) / 180;
-        return (
-          <line
-            key={a}
-            x1={cx + (r - 6) * Math.cos(ar)}
-            y1={cy + (r - 6) * Math.sin(ar)}
-            x2={cx + (r - 3) * Math.cos(ar)}
-            y2={cy + (r - 3) * Math.sin(ar)}
-            stroke="rgba(26,22,18,0.35)"
-            strokeWidth="1"
-          />
-        );
-      })}
-    </svg>
+    <div
+      style={{
+        animation: isUrgent ? 'timer-shake 0.15s ease-in-out infinite' : 'none',
+      }}
+    >
+      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+        {/* Fond cercle */}
+        <circle cx={cx} cy={cy} r={r} fill="rgba(26,22,18,0.06)" stroke="rgba(26,22,18,0.12)" strokeWidth="1.5" />
+        {/* 12 tick marks */}
+        {Array.from({ length: 12 }, (_, i) => {
+          const a = ((i * 30 - 90) * Math.PI) / 180;
+          const isMajor = i % 3 === 0;
+          return (
+            <line
+              key={i}
+              x1={cx + (r - (isMajor ? 8 : 5)) * Math.cos(a)}
+              y1={cy + (r - (isMajor ? 8 : 5)) * Math.sin(a)}
+              x2={cx + (r - 2) * Math.cos(a)}
+              y2={cy + (r - 2) * Math.sin(a)}
+              stroke="rgba(26,22,18,0.3)"
+              strokeWidth={isMajor ? 1.5 : 0.8}
+            />
+          );
+        })}
+        {/* Arc restant */}
+        <circle
+          cx={cx} cy={cy} r={r}
+          fill="none"
+          stroke={arcColor}
+          strokeWidth="5"
+          strokeDasharray={circumference}
+          strokeDashoffset={dashOffset}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${cx} ${cy})`}
+          style={{ transition: 'stroke-dashoffset 0.1s linear, stroke 0.5s ease' }}
+        />
+        {/* Aiguille */}
+        <line
+          x1={cx} y1={cy}
+          x2={needleX} y2={needleY}
+          stroke="var(--ink-black)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <circle cx={cx} cy={cy} r={3.5} fill="var(--ink-black)" />
+        {/* Secondes restantes au centre */}
+        <text
+          x={cx} y={cy + 14}
+          textAnchor="middle"
+          fontFamily="var(--font-stamp)"
+          fontSize="11"
+          fill={arcColor}
+          opacity={0.8}
+        >
+          {remainSec}s
+        </text>
+      </svg>
+    </div>
   );
 }
 
@@ -162,7 +187,8 @@ function FormPaper({
 /* ─── EpreuvePhase ─────────────────────────────────────────────────────────── */
 export default function EpreuvePhase({ socket, gameState }: Props) {
   const { epreuveInfo, answeredPlayerIds, mySocketId, room } = gameState;
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const draftRef = useRef<unknown>(null);
+  const submittedRef = useRef(false);
 
   const dossier = useMemo(() => {
     if (!epreuveInfo) return '0000';
@@ -170,24 +196,38 @@ export default function EpreuvePhase({ socket, gameState }: Props) {
     return String(n);
   }, [epreuveInfo]);
 
+  /* Reset refs quand une nouvelle épreuve démarre */
+  useEffect(() => {
+    draftRef.current = null;
+    submittedRef.current = false;
+  }, [epreuveInfo?.roundNumber]);
+
   if (!epreuveInfo) return null;
 
   const hasAnswered = mySocketId ? answeredPlayerIds.has(mySocketId) : false;
   const totalPlayers = room?.players.length ?? 0;
   const answeredCount = answeredPlayerIds.size;
 
+  /* Soumission explicite uniquement (VALIDER ou timer=0) */
   function emit(content: unknown) {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (submittedRef.current) return;
+    submittedRef.current = true;
     socket.emit('epreuve:answer', { content });
   }
 
+  /* Draft local : PAS d'envoi au serveur, juste sauvegarde locale */
   function onDraftChange(content: string) {
     if (hasAnswered) return;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      socket.emit('epreuve:answer', { content });
-    }, 500);
+    draftRef.current = content;
   }
+
+  /* Auto-submit quand le timer local atteint 0 */
+  const handleTimeUp = useMemo(() => () => {
+    if (submittedRef.current || hasAnswered) return;
+    if (draftRef.current) {
+      emit(draftRef.current);
+    }
+  }, [hasAnswered]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function renderInput(type: EpreuveInputType) {
     const prompt = epreuveInfo!.prompt;
@@ -223,13 +263,13 @@ export default function EpreuvePhase({ socket, gameState }: Props) {
         <span>{answeredCount}/{totalPlayers} RÉPONSES</span>
       </div>
 
-      {/* Timer circulaire — position absolute haut-droite du formulaire */}
+      {/* Timer circulaire — position fixed haut-droite */}
       {!hasAnswered && (
         <div
           className="fixed z-30"
-          style={{ top: 48, right: 16, opacity: 0.85 }}
+          style={{ top: 48, right: 12, opacity: 0.9 }}
         >
-          <AnalogTimer totalSeconds={epreuveInfo.timeLimit} />
+          <AnalogTimer totalSeconds={epreuveInfo.timeLimit} onTimeUp={handleTimeUp} />
         </div>
       )}
 
@@ -241,15 +281,11 @@ export default function EpreuvePhase({ socket, gameState }: Props) {
             style={{ padding: '24px 32px', transform: 'rotate(1deg)', maxWidth: 320 }}
           >
             <div
-              className="font-marker"
+              className="stamp-mark stamp-mark--green font-marker"
               style={{
                 fontSize: '1.6rem',
-                color: 'var(--accent-green)',
                 transform: 'rotate(-2deg)',
-                display: 'inline-block',
-                border: '3px solid var(--accent-green)',
-                padding: '4px 12px',
-                opacity: 0.9,
+                animation: 'stamp-drop 0.35s cubic-bezier(0.34,1.56,0.64,1)',
               }}
             >
               ENREGISTRÉ
