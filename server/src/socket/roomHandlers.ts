@@ -78,8 +78,26 @@ export function registerRoomHandlers(
   socket.on('disconnect', () => {
     const room = getRoomByPlayerId(rooms, socket.id);
     if (!room) return;
+
+    // Clean up orphaned votes/suspicions to keep server state consistent
+    if (room.currentPhase === 'vote') {
+      room.finalVotes.delete(socket.id);
+    }
+    if (room.currentPhase === 'defilement' && room.rounds.length > 0) {
+      const round = room.rounds[room.currentRound - 1];
+      if (round) {
+        round.suspicions = round.suspicions.filter((s) => s.voterPlayerId !== socket.id);
+      }
+    }
+
     leaveRoom(room, socket.id);
     io.to(room.code).emit('room:state', sanitizeRoom(room));
     console.log(`[room] ${socket.id} disconnected from ${room.code}`);
+
+    // Re-check vote completion since humanCount changed
+    if (room.currentPhase === 'vote') {
+      const checkFn = (room as any)._checkVotesComplete;
+      if (checkFn) checkFn();
+    }
   });
 }
