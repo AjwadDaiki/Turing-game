@@ -147,10 +147,11 @@ function waitForDefilement(io: Server, room: Room): Promise<void> {
 }
 
 function waitForVotes(room: Room): Promise<void> {
-  const humanCount = Array.from(room.players.values()).filter((p) => !p.isAI && p.connected).length;
   return new Promise<void>((resolve) => {
     const timer = createTimer(VOTE_DURATION_MS, resolve);
     (room as any)._checkVotesComplete = () => {
+      // Recalculate humanCount dynamically (handles disconnects during vote)
+      const humanCount = Array.from(room.players.values()).filter((p) => !p.isAI && p.connected).length;
       if (room.finalVotes.size >= humanCount) { timer.cancel(); resolve(); }
     };
   }).then(() => { delete (room as any)._checkVotesComplete; });
@@ -255,6 +256,7 @@ export function registerGameHandlers(
     }
 
     round.suspicions.push({ voterPlayerId: socket.id, targetPlayerId, type });
+    socket.emit('suspicion:confirmed', { targetPlayerId, type });
     console.log(`[suspicion] ${socket.id} → ${targetPlayerId} (${type}) enregistré`);
   });
 

@@ -109,7 +109,8 @@ export default function DrawInput({ prompt, onSubmit, disabled }: Props) {
         className="w-full touch-none"
         style={{
           cursor: submitted ? 'default' : 'crosshair',
-          border: '1px solid rgba(26,22,18,0.25)',
+          border: '2px solid rgba(26,22,18,0.3)',
+          boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.35), 0 0 0 1px rgba(232,220,192,0.15)',
           display: 'block',
         }}
         onMouseDown={onPointerDown}
@@ -125,7 +126,7 @@ export default function DrawInput({ prompt, onSubmit, disabled }: Props) {
           onClick={clearCanvas}
           disabled={disabled || submitted || !hasStrokes}
           className="flex-1 btn-stamp"
-          style={{ fontSize: '0.7rem', padding: '8px 12px', opacity: (!hasStrokes || submitted) ? 0.4 : 1 }}
+          style={{ fontSize: '0.7rem', padding: '12px 16px', opacity: (!hasStrokes || submitted) ? 0.4 : 1 }}
         >
           EFFACER
         </button>
@@ -133,7 +134,7 @@ export default function DrawInput({ prompt, onSubmit, disabled }: Props) {
           onClick={handleSubmit}
           disabled={disabled || submitted}
           className="flex-1 btn-stamp"
-          style={{ fontSize: '0.7rem', padding: '8px 12px', opacity: submitted ? 0.4 : 1 }}
+          style={{ fontSize: '0.7rem', padding: '12px 16px', opacity: submitted ? 0.4 : 1 }}
         >
           VALIDER
         </button>

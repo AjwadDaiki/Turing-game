@@ -29,13 +29,15 @@ export default function GameOrchestrator({ socket, gameState }: Props) {
           {error}
         </div>
       )}
-      {currentPhase === 'lobby'      && <LobbyPhase      socket={socket} gameState={gameState} />}
-      {currentPhase === 'intro'      && <IntroPhase      gameState={gameState} />}
-      {currentPhase === 'epreuve'    && <EpreuvePhase    socket={socket} gameState={gameState} />}
-      {currentPhase === 'defilement' && <DefilementPhase socket={socket} gameState={gameState} />}
-      {currentPhase === 'recap'      && <RecapPhase      gameState={gameState} />}
-      {currentPhase === 'vote'       && <VotePhase       socket={socket} gameState={gameState} />}
-      {currentPhase === 'reveal'     && <RevealPhase     gameState={gameState} />}
+      <div key={currentPhase} style={{ animation: 'phase-fade-in 0.4s ease-out' }}>
+        {currentPhase === 'lobby'      && <LobbyPhase      socket={socket} gameState={gameState} />}
+        {currentPhase === 'intro'      && <IntroPhase      gameState={gameState} />}
+        {currentPhase === 'epreuve'    && <EpreuvePhase    socket={socket} gameState={gameState} />}
+        {currentPhase === 'defilement' && <DefilementPhase socket={socket} gameState={gameState} />}
+        {currentPhase === 'recap'      && <RecapPhase      gameState={gameState} />}
+        {currentPhase === 'vote'       && <VotePhase       socket={socket} gameState={gameState} />}
+        {currentPhase === 'reveal'     && <RevealPhase     gameState={gameState} />}
+      </div>
     </>
   );
 }

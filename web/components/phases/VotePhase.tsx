@@ -40,12 +40,12 @@ function VoteOption({
         alignItems: 'center',
         gap: 12,
         padding: '8px 12px',
-        background: selected ? `${accentColor}15` : 'transparent',
+        background: selected ? `${accentColor}1A` : 'transparent',
         border: `1.5px solid ${selected ? accentColor : 'rgba(26,22,18,0.2)'}`,
-        boxShadow: selected ? `inset 0 1px 3px ${accentColor}18` : 'none',
+        boxShadow: selected ? `inset 0 2px 4px ${accentColor}20` : 'none',
         width: '100%',
         cursor: 'pointer',
-        transition: 'all 80ms ease',
+        transition: 'all 140ms cubic-bezier(0.34, 1.56, 0.64, 1)',
         marginBottom: 6,
         textAlign: 'left',
       }}
@@ -61,7 +61,8 @@ function VoteOption({
           alignItems: 'center',
           justifyContent: 'center',
           background: 'transparent',
-          transition: 'border-color 80ms ease',
+          transition: 'border-color 140ms ease, transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transform: selected ? 'scale(1.1)' : 'scale(1)',
         }}
       >
         {selected && (
