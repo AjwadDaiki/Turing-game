@@ -93,12 +93,13 @@ export default function IntroPhase({ gameState }: Props) {
           perspective: 1000,
           width: 280,
           height: 400,
+          filter: flipped && !flyAway ? 'drop-shadow(0 20px 40px rgba(0,0,0,0.45))' : 'drop-shadow(0 8px 16px rgba(0,0,0,0.3))',
           transform: flyAway
             ? `translateY(-110vh) rotate(${cardRot - 5}deg)`
             : 'none',
           transition: flyAway
-            ? 'transform 0.5s ease-in'
-            : 'none',
+            ? 'transform 0.5s ease-in, filter 0.5s ease'
+            : 'filter 0.8s ease',
         }}
       >
         <div
@@ -108,7 +109,7 @@ export default function IntroPhase({ gameState }: Props) {
             height: '100%',
             transformStyle: 'preserve-3d',
             transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-            transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
           }}
         >
           {/* ── Recto : dos de la carte ── */}

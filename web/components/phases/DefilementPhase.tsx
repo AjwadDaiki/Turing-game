@@ -42,7 +42,8 @@ function Polaroid({
       style={{
         transform: `rotate(${rot}deg)`,
         transition: 'transform 0.2s ease',
-        animation: 'paper-drop 0.4s ease-out',
+        animation: 'paper-drop 0.4s ease-out both',
+        animationDelay: `${index * 60}ms`,
       }}
     >
       {/* Corps du polaroid */}
@@ -229,7 +230,10 @@ export default function DefilementPhase({ socket, gameState }: Props) {
         {revealedAnswers.length === 0 ? (
           <div className="text-center">
             {/* Pile de polaroids vierges */}
-            <div className="relative inline-block mb-8" style={{ width: 200, height: 240 }}>
+            <div
+              className="relative inline-block mb-8"
+              style={{ width: 200, height: 240, animation: 'polaroid-breathe 3s ease-in-out infinite' }}
+            >
               {[3, 2, 1, 0].map(i => (
                 <div
                   key={i}

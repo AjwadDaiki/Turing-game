@@ -198,7 +198,8 @@ export default function Home() {
               fontSize: 'clamp(2.5rem, 8vw, 4rem)',
               color: 'var(--lamp-orange-glow)',
               letterSpacing: '0.25em',
-              textShadow: '0 0 40px rgba(232,149,74,0.5), 2px 2px 0 rgba(0,0,0,0.5)',
+              textShadow: '0 0 60px rgba(232,149,74,0.65), 0 0 100px rgba(232,149,74,0.25), 2px 2px 4px rgba(0,0,0,0.6)',
+              animation: 'title-glow 4s ease-in-out infinite',
               lineHeight: 1,
             }}
           >
@@ -274,12 +275,14 @@ export default function Home() {
             )}
 
             {error && (
-              <p
-                className="font-marker text-center"
-                style={{ color: 'var(--stamp-red)', fontSize: '0.8rem', transform: 'rotate(-1deg)', lineHeight: 1.3 }}
-              >
-                {error}
-              </p>
+              <div style={{ animation: 'error-shake 0.4s ease-out' }}>
+                <p
+                  className="font-marker text-center"
+                  style={{ color: 'var(--stamp-red)', fontSize: '0.8rem', transform: 'rotate(-1deg)', lineHeight: 1.3 }}
+                >
+                  {error}
+                </p>
+              </div>
             )}
 
             <button

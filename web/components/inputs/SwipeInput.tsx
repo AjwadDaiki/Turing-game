@@ -111,15 +111,17 @@ export default function SwipeInput({ prompt, onSubmit, disabled }: Props) {
           <div
             key={i}
             style={{
-              height: 5,
-              width: 20,
+              height: 6,
+              width: 22,
+              borderRadius: 3,
               background:
                 i < current
                   ? 'var(--paper-cream)'
                   : i === current
                   ? 'rgba(232,220,192,0.45)'
                   : 'rgba(232,220,192,0.15)',
-              transition: 'background 0.2s ease',
+              transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              boxShadow: i < current ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
             }}
           />
         ))}

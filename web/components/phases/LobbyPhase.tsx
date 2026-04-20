@@ -69,9 +69,11 @@ export default function LobbyPhase({ socket, gameState }: Props) {
                 color: copied ? 'var(--accent-green)' : 'rgba(26,22,18,0.5)',
                 border: `1px solid ${copied ? 'var(--accent-green)' : 'rgba(26,22,18,0.25)'}`,
                 background: 'transparent',
-                padding: '3px 10px',
+                padding: '6px 14px',
                 cursor: 'pointer',
-                transition: 'all 150ms ease',
+                transition: 'all 200ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                transform: copied ? 'scale(1.06)' : 'scale(1)',
+                boxShadow: copied ? '0 0 8px rgba(74,107,61,0.3)' : 'none',
               }}
             >
               {copied ? 'COPIÉ ✓' : 'COPIER LE CODE'}
@@ -142,11 +144,13 @@ export default function LobbyPhase({ socket, gameState }: Props) {
               {/* Voyant de connexion avec pulse */}
               <span
                 style={{
-                  width: 8,
-                  height: 8,
+                  width: 10,
+                  height: 10,
                   borderRadius: '50%',
                   background: p.connected ? 'var(--accent-green)' : 'rgba(26,22,18,0.2)',
-                  boxShadow: p.connected ? '0 0 6px var(--accent-green)' : 'none',
+                  boxShadow: p.connected
+                    ? '0 0 8px var(--accent-green), 0 0 16px rgba(74,107,61,0.2)'
+                    : '0 0 0 2px rgba(26,22,18,0.08)',
                   flexShrink: 0,
                   animation: p.connected ? 'connection-pulse 2s ease-in-out infinite' : 'none',
                 }}
