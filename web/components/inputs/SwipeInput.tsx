@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function SwipeInput({ prompt, onSubmit, disabled }: Props) {
-  const [images] = useState<string[]>(generateImages);
+  const [images] = useState<string[]>(() => generateImages());
   const [votes, setVotes] = useState<string[]>([]);
   const current = votes.length;
 

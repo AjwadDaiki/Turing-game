@@ -203,6 +203,9 @@ export default function DefilementPhase({ socket, gameState }: Props) {
     <main
       className="relative min-h-screen flex flex-col z-20 overflow-hidden"
       onClick={handleHostClick}
+      onKeyDown={e => { if (isHost && (e.key === 'Enter' || e.key === ' ')) handleHostClick(); }}
+      role={isHost ? 'button' : undefined}
+      tabIndex={isHost ? 0 : undefined}
       style={{ cursor: isHost ? 'pointer' : 'default' }}
     >
       {/* Barre top */}
